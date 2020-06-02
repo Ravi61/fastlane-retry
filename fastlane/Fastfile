@@ -1,0 +1,54 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Description of what the lane does"
+  lane :custom_lane do
+
+    test_run_block = lambda do |testrun_info|
+      failed_test_count = testrun_info[:failed].size
+      passed_test_count = testrun_info[:passing].size
+      try_attempt = testrun_info[:try_count]
+      batch = testrun_info[:batch]
+    
+      # UI.abort_with_message!('You could conditionally abort')
+      UI.message("Everything is fine, let's continue try #{try_attempt + 1} for batch #{batch}")
+    end
+    
+    multi_scan(
+      project: 'DemoUITest.xcodeproj',
+      scheme: 'DemoUITestUITests',
+      destination: "name=iPhone 7",
+      clean: true,
+      derived_data_path: './d',
+      only_testing: ['DemoUITestUITests/DemoUITestUITests'],
+      output_types: 'junit',
+      output_files: 'report.junit',
+      build_for_testing: true,
+      result_bundle: true,
+      fail_build: false,
+      skip_build: false,
+      output_directory: 'reports',
+      configuration: 'Debug',
+      prelaunch_simulator: false,
+      disable_concurrent_testing: true,
+      retry_test_runner_failures: true,
+      try_count: 3,
+      testrun_completed_block: test_run_block
+    )
+  end
+end
